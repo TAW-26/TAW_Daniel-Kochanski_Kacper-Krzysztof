@@ -1,17 +1,41 @@
+# System wypożyczania samochodów
 
-# Uruchomienie projektu lokalnie
+## Opis projektu
 
-## Wymagania
+System wypożyczania samochodów to aplikacja internetowa umożliwiająca użytkownikom przeglądanie dostępnych pojazdów oraz dokonywanie ich rezerwacji online.  
+Użytkownicy mogą tworzyć konto, logować się do systemu oraz zarządzać swoimi rezerwacjami.
 
-Aby uruchomić projekt lokalnie należy mieć zainstalowane:
-
-- Node.js  
-- npm  
-- MongoDB  
+System zawiera również panel administratora, który pozwala zarządzać flotą samochodów oraz rezerwacjami użytkowników.
 
 ---
 
-## 1. Sklonowanie repozytorium
+## Użyte technologie
+
+Frontend:
+- React.js
+
+Backend:
+- Node.js
+- Express
+
+Baza danych:
+- MongoDB
+
+---
+
+## Instrukcja uruchomienia projektu
+
+### Wymagania
+
+Aby uruchomić projekt lokalnie należy mieć zainstalowane:
+
+- Node.js
+- npm
+- MongoDB
+
+---
+
+### 1. Sklonowanie repozytorium
 
 ```bash
 git clone https://github.com/TWOJ_LOGIN/car-rental-system.git
@@ -20,23 +44,11 @@ cd car-rental-system
 
 ---
 
-## 2. Uruchomienie backendu
-
-Przejdź do folderu backend:
+### 2. Uruchomienie backendu
 
 ```bash
 cd backend
-```
-
-Zainstaluj zależności:
-
-```bash
 npm install
-```
-
-Uruchom serwer:
-
-```bash
 npm run dev
 ```
 
@@ -48,28 +60,32 @@ http://localhost:5000
 
 ---
 
-## 3. Uruchomienie frontendu
+### 3. Uruchomienie frontendu
 
-W nowym terminalu przejdź do folderu frontend:
+W nowym terminalu:
 
 ```bash
 cd frontend
-```
-
-Zainstaluj zależności:
-
-```bash
 npm install
-```
-
-Uruchom aplikację:
-
-```bash
 npm start
 ```
 
-Aplikacja frontendowa będzie dostępna pod adresem:
+Frontend będzie dostępny pod adresem:
 
 ```
 http://localhost:3000
 ```
+
+---
+
+## Dokumentacja
+
+Dokumentacja projektu znajduje się w katalogu `docs` w repozytorium:
+
+```
+docs/
+```
+
+Można ją również zobaczyć tutaj:
+
+https://github.com/TWOJ_LOGIN/car-rental-system/tree/main/docs
