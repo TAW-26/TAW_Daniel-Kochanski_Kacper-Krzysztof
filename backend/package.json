@@ -1,0 +1,26 @@
+{
+  "name": "car-rental-app",
+  "version": "1.0.0",
+  "description": "System wypożyczania samochodów",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1"
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof/issues"
+  },
+  "homepage": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof#readme"
+}
