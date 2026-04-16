@@ -1,10 +1,10 @@
 import express from "express";
 import { connectDB } from "./db.js";
+import { authMiddleware } from "./middleware/auth.js";
 
-// 🔥 połączenie z DB
+
 connectDB();
 
-// 🔥 teraz importujemy SERWISY DB (NIE appContext)
 import { AuthService } from "./services/AuthService.js";
 import { CarService } from "./services/CarService.js";
 import { ReservationService } from "./services/ReservationService.js";
@@ -25,9 +25,6 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-/* =========================
-   🚗 CARS
-========================= */
 
 // GET wszystkie auta
 app.get("/cars", async (req, res) => {
@@ -83,9 +80,6 @@ app.delete("/cars/:id", async (req, res) => {
   res.status(204).send();
 });
 
-/* =========================
-   👤 USERS
-========================= */
 
 app.get("/users", async (req, res) => {
   const users = await userService.getAllUsers();
@@ -100,51 +94,45 @@ app.delete("/users/:id", async (req, res) => {
   res.status(204).send();
 });
 
-/* =========================
-   🔐 AUTH
-========================= */
 
 app.post("/auth/register", async (req, res) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ error: "Email required" });
+  if (!email || !password) {
+    return res.status(400).json({ error: "Missing data" });
   }
 
-  const user = await authService.register(email);
+  const user = await authService.register(email, password);
   res.status(201).json(user);
 });
 
 app.post("/auth/login", async (req, res) => {
-  const { email } = req.body;
+  const { email, password } = req.body;
 
-  const user = await authService.login(email);
+  const result = await authService.login(email, password);
 
-  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!result) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
 
-  res.json(user);
+  res.json(result);
 });
 
-/* =========================
-   📅 RESERVATIONS
-========================= */
 
-app.get("/reservations", async (req, res) => {
+app.get("/reservations", authMiddleware, async (req, res) => {
   const reservations = await reservationService.getAllReservations();
   res.json(reservations);
 });
 
-app.get("/reservations/user/:userId", async (req, res) => {
+app.get("/reservations/user/:userId", authMiddleware, async (req, res) => {
   const reservations = await reservationService.getUserReservations(req.params.userId);
   res.json(reservations);
 });
 
-app.post("/reservations", async (req, res) => {
-  const { userId, carId, startDate, endDate } = req.body;
+app.post("/reservations", authMiddleware, async (req, res) => {
+  const { carId, startDate, endDate } = req.body;
 
-  if (!userId || !carId || !startDate || !endDate) {
-    return res.status(400).json({ error: "Missing data" });
-  }
+  const userId = req.user.id; 
 
   const reservation = await reservationService.reserveCar(
     userId,
@@ -159,10 +147,6 @@ app.post("/reservations", async (req, res) => {
 
   res.status(201).json(reservation);
 });
-
-/* =========================
-   ❌ ERROR HANDLER
-========================= */
 
 app.use((err, req, res, next) => {
   console.error(err);
