@@ -1,18 +1,11 @@
-import { User } from "../models/models.js";
+import { UserModel } from "../models/models.js";
 
 export class AuthService {
-  constructor() {
-    this.users = [];
-    this.nextId = 1;
+  async register(email) {
+    return await UserModel.create({ email });
   }
 
-  register(email) {
-    const user = new User(this.nextId++, email);
-    this.users.push(user);
-    return user;
-  }
-
-  login(email) {
-    return this.users.find(u => u.email === email) || null;
+  async login(email) {
+    return await UserModel.findOne({ email });
   }
 }

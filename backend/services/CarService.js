@@ -1,49 +1,28 @@
-import { Car } from "../models/models.js";
+import { CarModel } from "../models/models.js";
 
 export class CarService {
-  constructor() {
-    this.cars = [];
-    this.nextId = 1;
+  async addCar(brand, model) {
+    return await CarModel.create({ brand, model });
   }
 
-  addCar(brand, model) {
-    const car = new Car(this.nextId++, brand, model);
-    this.cars.push(car);
-    return car;
+  async getAllCars() {
+    return await CarModel.find();
   }
 
-  editCar(id, brand, model) {
-    const car = this.getCar(id);
-    if (!car) return null;
-
-    car.brand = brand;
-    car.model = model;
-    return car;
+  async getCar(id) {
+    return await CarModel.findById(id);
   }
 
-  deleteCar(id) {
-    const index = this.cars.findIndex(c => c.id === id);
-    if (index === -1) return false;
-
-    this.cars.splice(index, 1);
-    return true;
+  async deleteCar(id) {
+    const res = await CarModel.findByIdAndDelete(id);
+    return !!res;
   }
 
-  getCar(id) {
-    return this.cars.find(c => c.id === id) || null;
-  }
-
-  getAllCars() {
-    return this.cars;
-  }
-
-  filterCars({ brand }) {
-    let result = [...this.cars];
-
-    if (brand) {
-      result = result.filter(c => c.brand === brand);
-    }
-
-    return result;
+  async editCar(id, brand, model) {
+    return await CarModel.findByIdAndUpdate(
+      id,
+      { brand, model },
+      { new: true }
+    );
   }
 }
