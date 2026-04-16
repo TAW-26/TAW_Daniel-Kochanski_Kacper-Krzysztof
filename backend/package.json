@@ -22,5 +22,6 @@
   "bugs": {
     "url": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof/issues"
   },
-  "homepage": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof#readme"
+  "homepage": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof#readme",
+  "type": "module"
 }
