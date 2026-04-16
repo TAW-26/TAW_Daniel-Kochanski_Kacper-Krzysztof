@@ -2,9 +2,9 @@
   "name": "car-rental-app",
   "version": "1.0.0",
   "description": "System wypożyczania samochodów",
-  "main": "app.js",
+  "main": "appContext.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node appContext.js"
   },
   "dependencies": {
     "express": "^4.22.1"
