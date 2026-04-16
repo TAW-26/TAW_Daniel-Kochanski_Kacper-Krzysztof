@@ -1,45 +1,37 @@
-import { Reservation } from "../models/models.js";
+import { ReservationModel } from "../models/models.js";
 
 export class ReservationService {
-  constructor(carService) {
-    this.reservations = [];
-    this.nextId = 1;
-    this.carService = carService;
-  }
-
-  checkAvailability(carId, startDate, endDate) {
-    return !this.reservations.some(r => {
-      if (r.carId !== carId) return false;
-
-      return !(endDate < r.startDate || startDate > r.endDate);
+  async checkAvailability(carId, startDate, endDate) {
+    const conflict = await ReservationModel.findOne({
+      carId,
+      $or: [
+        {
+          startDate: { $lte: endDate },
+          endDate: { $gte: startDate }
+        }
+      ]
     });
+
+    return !conflict;
   }
 
-  reserveCar(userId, carId, startDate, endDate) {
-    const car = this.carService.getCar(carId);
-    if (!car) return null;
+  async reserveCar(userId, carId, startDate, endDate) {
+    const available = await this.checkAvailability(carId, startDate, endDate);
+    if (!available) return null;
 
-    const isAvailable = this.checkAvailability(carId, startDate, endDate);
-    if (!isAvailable) return null;
-
-    const reservation = new Reservation(
-      this.nextId++,
+    return await ReservationModel.create({
       userId,
       carId,
       startDate,
       endDate
-    );
-
-    this.reservations.push(reservation);
-    return reservation;
+    });
   }
 
-  getUserReservations(userId) {
-    return this.reservations.filter(r => r.userId === userId);
+  async getAllReservations() {
+    return await ReservationModel.find();
   }
 
-  // dla administratora
-  getAllReservations() {
-    return this.reservations;
+  async getUserReservations(userId) {
+    return await ReservationModel.find({ userId });
   }
 }
