@@ -1,6 +1,6 @@
 ### AUTH
 
-POST http://localhost:3000/auth/register
+POST http://localhost:5000/auth/register
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 
 ---
 
-POST http://localhost:3000/auth/login
+POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
@@ -22,7 +22,7 @@ Content-Type: application/json
 
 ### CARS
 
-POST http://localhost:3000/cars
+POST http://localhost:5000/cars
 Content-Type: application/json
 
 {
@@ -32,19 +32,19 @@ Content-Type: application/json
 
 ---
 
-GET http://localhost:3000/cars
+GET http://localhost:5000/cars
 
 ---
 
-GET http://localhost:3000/cars/{id}
+GET http://localhost:5000/cars/{id}
 
 ---
 
-GET http://localhost:3000/cars/filter?brand=BMW
+GET http://localhost:5000/cars/filter?brand=BMW
 
 ---
 
-PUT http://localhost:3000/cars/{id}
+PUT http://localhost:5000/cars/{id}
 Content-Type: application/json
 
 {
@@ -54,35 +54,35 @@ Content-Type: application/json
 
 ---
 
-DELETE http://localhost:3000/cars/{id}
+DELETE http://localhost:5000/cars/{id}
 
 ---
 
 ### USERS (JWT REQUIRED)
 
-GET http://localhost:3000/users
+GET http://localhost:5000/users
 Authorization: Bearer <TOKEN>
 
 ---
 
-DELETE http://localhost:3000/users/{id}
+DELETE http://localhost:5000/users/{id}
 Authorization: Bearer <TOKEN>
 
 ---
 
 ### RESERVATIONS (JWT REQUIRED)
 
-GET http://localhost:3000/reservations
+GET http://localhost:5000/reservations
 Authorization: Bearer <TOKEN>
 
 ---
 
-GET http://localhost:3000/reservations/user/{userId}
+GET http://localhost:5000/reservations/user/{userId}
 Authorization: Bearer <TOKEN>
 
 ---
 
-POST http://localhost:3000/reservations
+POST http://localhost:5000/reservations
 Authorization: Bearer <TOKEN>
 Content-Type: application/json
 

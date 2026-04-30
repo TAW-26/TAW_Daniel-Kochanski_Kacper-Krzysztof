@@ -25,7 +25,7 @@ export class AuthService {
     if (!isMatch) return null;
 
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: "1h" }
     );

@@ -1,6 +1,4 @@
-export default function ProfilePage({ userReservationsList, currentUserEmail, onBack }) {
-  const filteredReservations = userReservationsList.filter((reservation) => reservation.userEmail === currentUserEmail);
-
+export default function ProfilePage({ userReservationsList, currentUserEmail, onBack, isLoading, error }) {
   return (
     <section className="profile-page">
       <div className="profile-container">
@@ -21,23 +19,32 @@ export default function ProfilePage({ userReservationsList, currentUserEmail, on
           <h3>Lista rezerwacji</h3>
           <div className="reservations-table">
             <div className="table-header">
-              <div className="col-auto">Auto</div>
+              <div className="col-auto">Auto ID</div>
               <div className="col-date">Data</div>
               <div className="col-status">Status</div>
             </div>
-            {currentUserEmail ? (
-              filteredReservations.length > 0 ? (
-                filteredReservations.map((reservation) => (
-                  <div key={reservation.id} className="table-row">
+            {isLoading ? (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Ładowanie rezerwacji...</p>
+              </div>
+            ) : error ? (
+              <div className="error-state">
+                <p>Wystąpił błąd: {error}</p>
+              </div>
+            ) : currentUserEmail ? (
+              userReservationsList.length > 0 ? (
+                userReservationsList.map((reservation) => (
+                  <div key={reservation._id || reservation.id} className="table-row">
                     <div className="col-auto">
-                      {reservation.carBrand} {reservation.carName}
+                      {reservation.carBrand || reservation.carId} {reservation.carName || ''}
                     </div>
                     <div className="col-date">
-                      {reservation.dateFrom} — {reservation.dateTo}
+                      {new Date(reservation.startDate || reservation.dateFrom).toLocaleDateString()} — {new Date(reservation.endDate || reservation.dateTo).toLocaleDateString()}
                     </div>
                     <div className="col-status">
-                      <span className={`status-badge ${reservation.status.toLowerCase().replace(/\s/g, '-')}`}>
-                        {reservation.status}
+                      <span className={`status-badge ${(reservation.status || 'Potwierdzona').toLowerCase().replace(/\s/g, '-')}`}>
+                        {reservation.status || 'Potwierdzona'}
                       </span>
                     </div>
                   </div>
