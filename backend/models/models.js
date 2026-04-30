@@ -5,7 +5,8 @@ export const UserModel = mongoose.model(
   "User",
   new mongoose.Schema({
     email: String,
-    password: String
+    password: String,
+    role: { type: String, default: "user" }
   })
 );
 
@@ -14,7 +15,14 @@ export const CarModel = mongoose.model(
   "Car",
   new mongoose.Schema({
     brand: String,
-    model: String
+    model: String,
+    type: String,
+    name: String,
+    price: Number,
+    seats: Number,
+    fuel: String,
+    description: String,
+    image: String
   })
 );
 

@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { connectDB } from "./db.js";
 import { authMiddleware } from "./middleware/auth.js";
 
@@ -14,12 +15,13 @@ import { UserService } from "./services/UserService.js";
 const authService = new AuthService();
 const carService = new CarService();
 const reservationService = new ReservationService();
-const userService = new UserService(authService);
+const userService = new UserService();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-const PORT = 3000;
+const PORT = 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
@@ -50,21 +52,13 @@ app.get("/cars/:id", async (req, res) => {
 
 // POST dodaj auto
 app.post("/cars", async (req, res) => {
-  const { brand, model } = req.body;
-
-  if (!brand || !model) {
-    return res.status(400).json({ error: "Missing data" });
-  }
-
-  const car = await carService.addCar(brand, model);
+  const car = await carService.addCar(req.body);
   res.status(201).json(car);
 });
 
 // PUT edytuj auto
 app.put("/cars/:id", async (req, res) => {
-  const { brand, model } = req.body;
-
-  const car = await carService.editCar(req.params.id, brand, model);
+  const car = await carService.editCar(req.params.id, req.body);
 
   if (!car) return res.status(404).json({ error: "Car not found" });
 
@@ -129,10 +123,26 @@ app.get("/reservations/user/:userId", authMiddleware, async (req, res) => {
   res.json(reservations);
 });
 
+app.get("/reservations/check", async (req, res) => {
+  const { carId, startDate, endDate } = req.query;
+
+  if (!carId || !startDate || !endDate) {
+    return res.status(400).json({ error: "Missing parameters" });
+  }
+
+  const available = await reservationService.checkAvailability(
+    carId,
+    new Date(startDate),
+    new Date(endDate)
+  );
+
+  res.json({ available });
+});
+
 app.post("/reservations", authMiddleware, async (req, res) => {
   const { carId, startDate, endDate } = req.body;
 
-  const userId = req.user.id; 
+  const userId = req.user.id;
 
   const reservation = await reservationService.reserveCar(
     userId,

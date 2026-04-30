@@ -1,8 +1,8 @@
 import { CarModel } from "../models/models.js";
 
 export class CarService {
-  async addCar(brand, model) {
-    return await CarModel.create({ brand, model });
+  async addCar(carData) {
+    return await CarModel.create(carData);
   }
 
   async getAllCars() {
@@ -13,15 +13,21 @@ export class CarService {
     return await CarModel.findById(id);
   }
 
+  async filterCars({ brand }) {
+    const filter = {};
+    if (brand && brand !== 'Wszystkie') filter.brand = brand;
+    return await CarModel.find(filter);
+  }
+
   async deleteCar(id) {
     const res = await CarModel.findByIdAndDelete(id);
     return !!res;
   }
 
-  async editCar(id, brand, model) {
+  async editCar(id, carData) {
     return await CarModel.findByIdAndUpdate(
       id,
-      { brand, model },
+      carData,
       { new: true }
     );
   }

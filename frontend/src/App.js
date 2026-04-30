@@ -7,13 +7,10 @@ import CarDetailPage from './components/CarDetailPage';
 import AdminPanel from './components/AdminPanel';
 import ProfilePage from './components/ProfilePage';
 import {
-  cars,
   brandOptions,
   typeOptions,
-  userReservations,
-  adminReservations,
-  adminUsers,
 } from './data';
+import { api } from './api';
 
 function App() {
   const [brand, setBrand] = useState('Wszystkie');
@@ -26,10 +23,12 @@ function App() {
   const [dateTo, setDateTo] = useState('');
   const [availability, setAvailability] = useState('');
   const [reservationMessage, setReservationMessage] = useState('');
-  const [userReservationsList, setUserReservationsList] = useState(userReservations);
-  const [adminCarsList, setAdminCarsList] = useState(cars);
-  const [adminReservationsList] = useState(adminReservations);
-  const [adminUsersList] = useState(adminUsers);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [userReservationsList, setUserReservationsList] = useState([]);
+  const [adminCarsList, setAdminCarsList] = useState([]);
+  const [adminReservationsList, setAdminReservationsList] = useState([]);
+  const [adminUsersList, setAdminUsersList] = useState([]);
   const [adminSection, setAdminSection] = useState('cars');
   const [adminCarForm, setAdminCarForm] = useState({
     id: null,
@@ -44,6 +43,8 @@ function App() {
   const [adminEditMode, setAdminEditMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
+  const [currentUserRole, setCurrentUserRole] = useState('user');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
@@ -86,18 +87,37 @@ function App() {
       return { view: 'register', carId: null };
     }
     if (hash === 'admin') {
+      if (!isLoggedIn || currentUserRole !== 'admin') {
+        window.location.hash = '';
+        return { view: 'home', carId: null };
+      }
       return { view: 'admin', carId: null };
     }
-    let match = hash.match(/^details-(\d+)$/);
+    let match = hash.match(/^details-([a-zA-Z0-9]+)$/);
     if (match) {
-      return { view: 'details', carId: Number(match[1]) };
+      return { view: 'details', carId: match[1] };
     }
-    match = hash.match(/^booking-(\d+)$/);
+    match = hash.match(/^booking-([a-zA-Z0-9]+)$/);
     if (match) {
-      return { view: 'booking', carId: Number(match[1]) };
+      return { view: 'booking', carId: match[1] };
     }
     return { view: 'home', carId: null };
   };
+
+  const fetchCars = useCallback(async (brandFilter = 'Wszystkie') => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = brandFilter === 'Wszystkie' 
+        ? await api.getCars() 
+        : await api.getCarsByBrand(brandFilter);
+      setAdminCarsList(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const setCarFromHash = useCallback(() => {
     const parsed = parseHash();
@@ -109,6 +129,20 @@ function App() {
       setSelectedCar(null);
       setView('profile');
       setAvailability('');
+      
+      // Fetch user reservations
+      const fetchUserReservations = async () => {
+        setIsLoading(true);
+        try {
+          const data = await api.getUserReservations(currentUserId); 
+          setUserReservationsList(data);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchUserReservations();
       return;
     }
     if (parsed.view === 'login' || parsed.view === 'register') {
@@ -128,7 +162,7 @@ function App() {
       return;
     }
     if (parsed.view === 'details' || parsed.view === 'booking') {
-      const car = cars.find((item) => item.id === parsed.carId);
+      const car = adminCarsList.find((item) => (item.id === parsed.carId || item._id === parsed.carId));
       if (car) {
         setSelectedCar(car);
         setView(parsed.view);
@@ -142,7 +176,11 @@ function App() {
     setSelectedCar(null);
     setView('home');
     setAvailability('');
-  }, [isLoggedIn]);
+  }, [isLoggedIn, adminCarsList, currentUserId]);
+
+  useEffect(() => {
+    fetchCars(brand);
+  }, [fetchCars, brand]);
 
   useEffect(() => {
     setCarFromHash();
@@ -152,12 +190,12 @@ function App() {
   }, [setCarFromHash]);
 
   const handleSelectCar = (car) => {
-    window.location.hash = `details-${car.id}`;
+    window.location.hash = `details-${car._id || car.id}`;
   };
 
   const handleBack = () => {
     if (view === 'booking') {
-      window.location.hash = `details-${selectedCar?.id ?? ''}`;
+      window.location.hash = `details-${selectedCar?._id || selectedCar?.id || ''}`;
       return;
     }
     if (view === 'profile' || view === 'login' || view === 'register') {
@@ -182,66 +220,102 @@ function App() {
     if (field === 'registerPassword') setRegisterPassword(value);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
       setAuthMessage('Wprowadź email i hasło.');
       return;
     }
-    if (!loginEmail.includes('@')) {
-      setAuthMessage('Wprowadź prawidłowy email.');
-      return;
+    setIsLoading(true);
+    setAuthMessage('');
+    try {
+      const data = await api.login(loginEmail, loginPassword);
+      setIsLoggedIn(true);
+      setCurrentUserEmail(loginEmail);
+      setCurrentUserId(data.user._id || data.user.id);
+      setCurrentUserRole(data.user.role || 'user');
+      setAuthMessage('Zalogowano pomyślnie!');
+      setLoginEmail('');
+      setLoginPassword('');
+      setTimeout(() => {
+        window.location.hash = '';
+      }, 1000);
+    } catch (err) {
+      setAuthMessage(err.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoggedIn(true);
-    setCurrentUserEmail(loginEmail);
-    setAuthMessage('Zalogowano pomyślnie!');
-    setLoginEmail('');
-    setLoginPassword('');
-    setTimeout(() => {
-      window.location.hash = '';
-    }, 1000);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!registerEmail || !registerPassword) {
       setAuthMessage('Wprowadź email i hasło.');
       return;
     }
-    if (!registerEmail.includes('@')) {
-      setAuthMessage('Wprowadź prawidłowy email.');
-      return;
+    setIsLoading(true);
+    setAuthMessage('');
+    try {
+      await api.register(registerEmail, registerPassword);
+      setAuthMessage('Konto utworzone. Możesz się teraz zalogować.');
+      setRegisterEmail('');
+      setRegisterPassword('');
+      setTimeout(() => {
+        window.location.hash = 'login';
+      }, 1500);
+    } catch (err) {
+      setAuthMessage(err.message);
+    } finally {
+      setIsLoading(false);
     }
-    if (registerPassword.length < 6) {
-      setAuthMessage('Hasło musi mieć co najmniej 6 znaków.');
-      return;
-    }
-    setIsLoggedIn(true);
-    setCurrentUserEmail(registerEmail);
-    setAuthMessage('Konto utworzone. Zalogowano pomyślnie!');
-    setRegisterEmail('');
-    setRegisterPassword('');
-    setTimeout(() => {
-      window.location.hash = '';
-    }, 1000);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUserEmail('');
+    setCurrentUserId('');
+    setCurrentUserRole('user');
+    localStorage.removeItem('token');
     window.location.hash = '';
   };
 
-  const handleAdminSection = (section) => {
+  const handleAdminSection = async (section) => {
     setAdminSection(section);
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (section === 'users') {
+        const data = await api.getUsers();
+        setAdminUsersList(data);
+      } else if (section === 'reservations') {
+        const data = await api.getReservations();
+        setAdminReservationsList(data);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAdminFormChange = (field, value) => {
     setAdminCarForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleDeleteUser = async (id) => {
+    setIsLoading(true);
+    try {
+      await api.deleteUser(id);
+      setAdminUsersList(adminUsersList.filter((u) => (u._id || u.id) !== id));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleEditCar = (car) => {
     setAdminEditMode(true);
     setAdminCarForm({
-      id: car.id,
+      id: car._id || car.id,
       brand: car.brand,
       type: car.type,
       name: car.name,
@@ -252,18 +326,25 @@ function App() {
     });
   };
 
-  const handleDeleteCar = (id) => {
-    setAdminCarsList(adminCarsList.filter((car) => car.id !== id));
-    if (selectedCar?.id === id) {
-      setSelectedCar(null);
-      setView('home');
-      window.location.hash = '';
+  const handleDeleteCar = async (id) => {
+    setIsLoading(true);
+    try {
+      await api.deleteCar(id);
+      setAdminCarsList(adminCarsList.filter((car) => (car._id || car.id) !== id));
+      if (selectedCar?._id === id || selectedCar?.id === id) {
+        setSelectedCar(null);
+        setView('home');
+        window.location.hash = '';
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSaveCar = () => {
-    const newCar = {
-      id: adminEditMode ? adminCarForm.id : adminCarsList.length + 1,
+  const handleSaveCar = async () => {
+    const carData = {
       brand: adminCarForm.brand,
       type: adminCarForm.type,
       name: adminCarForm.name,
@@ -271,25 +352,23 @@ function App() {
       seats: Number(adminCarForm.seats) || 4,
       fuel: adminCarForm.fuel,
       description: adminCarForm.description,
+      image: adminCarForm.image || `https://via.placeholder.com/500x320?text=${adminCarForm.brand}+${adminCarForm.name}`,
     };
 
-    if (adminEditMode) {
-      setAdminCarsList(adminCarsList.map((car) => (car.id === newCar.id ? newCar : car)));
-    } else {
-      setAdminCarsList([...adminCarsList, newCar]);
+    setIsLoading(true);
+    try {
+      if (adminEditMode) {
+        await api.updateCar(adminCarForm.id, carData);
+      } else {
+        await api.addCar(carData);
+      }
+      await fetchCars();
+      handleCancelEdit();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    setAdminCarForm({
-      id: null,
-      brand: '',
-      type: '',
-      name: '',
-      price: '',
-      seats: '',
-      fuel: '',
-      description: '',
-    });
-    setAdminEditMode(false);
   };
 
   const handleCancelEdit = () => {
@@ -306,7 +385,7 @@ function App() {
     setAdminEditMode(false);
   };
 
-  const handleCheckAvailability = () => {
+  const handleCheckAvailability = async () => {
     if (!dateFrom || !dateTo) {
       setAvailability('Wprowadź zakres dat, aby sprawdzić dostępność.');
       return;
@@ -315,7 +394,21 @@ function App() {
       setAvailability('Wybierz poprawny zakres dat (data zakończenia musi być późniejsza niż data rozpoczęcia).');
       return;
     }
-    setAvailability('Termin dostępny! Możesz przejść do rezerwacji.');
+    
+    setIsLoading(true);
+    setAvailability('');
+    try {
+      const { available } = await api.checkAvailability(selectedCar._id || selectedCar.id, dateFrom, dateTo);
+      if (available) {
+        setAvailability('Termin dostępny! Możesz przejść do rezerwacji.');
+      } else {
+        setAvailability('Termin niedostępny. Wybierz inną datę.');
+      }
+    } catch (err) {
+      setAvailability(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReserve = () => {
@@ -330,26 +423,24 @@ function App() {
     }
     setAvailability('');
     setReservationMessage('');
-    window.location.hash = `booking-${selectedCar.id}`;
+    window.location.hash = `booking-${selectedCar._id || selectedCar.id}`;
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!selectedCar || daysCount <= 0) {
       setReservationMessage('Wprowadź poprawny zakres dat przed potwierdzeniem rezerwacji.');
       return;
     }
-    const newReservation = {
-      id: userReservationsList.length + 1,
-      userEmail: currentUserEmail || 'guest@example.com',
-      carId: selectedCar.id,
-      carBrand: selectedCar.brand,
-      carName: selectedCar.name,
-      dateFrom: dateFrom,
-      dateTo: dateTo,
-      status: 'Potwierdzona',
-    };
-    setUserReservationsList([...userReservationsList, newReservation]);
-    setReservationMessage(`Rezerwacja ${selectedCar.brand} ${selectedCar.name} na ${daysCount} dni została potwierdzona.`);
+    setIsLoading(true);
+    setReservationMessage('');
+    try {
+      await api.reserveCar(selectedCar._id || selectedCar.id, dateFrom, dateTo);
+      setReservationMessage(`Rezerwacja ${selectedCar.brand} ${selectedCar.name} na ${daysCount} dni została potwierdzona.`);
+    } catch (err) {
+      setReservationMessage(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -369,6 +460,7 @@ function App() {
             onRegister={handleRegister}
             onFieldChange={handleFieldChange}
             onNavigate={navigate}
+            isLoading={isLoading}
           />
         )}
 
@@ -384,6 +476,7 @@ function App() {
             onRegister={handleRegister}
             onFieldChange={handleFieldChange}
             onNavigate={navigate}
+            isLoading={isLoading}
           />
         )}
 
@@ -401,6 +494,8 @@ function App() {
             onPriceMaxChange={setPriceMax}
             filteredCars={filteredCars}
             onSelectCar={handleSelectCar}
+            isLoading={isLoading}
+            error={error}
           />
         )}
 
@@ -420,6 +515,7 @@ function App() {
             onReserve={handleReserve}
             onConfirmBooking={handleConfirmBooking}
             onBack={handleBack}
+            isLoading={isLoading}
           />
         )}
 
@@ -434,9 +530,12 @@ function App() {
             onSectionChange={handleAdminSection}
             onEditCar={handleEditCar}
             onDeleteCar={handleDeleteCar}
+            onDeleteUser={handleDeleteUser}
             onSaveCar={handleSaveCar}
             onCancelEdit={handleCancelEdit}
             onFormChange={handleAdminFormChange}
+            isLoading={isLoading}
+            error={error}
           />
         )}
 
@@ -445,6 +544,8 @@ function App() {
             userReservationsList={userReservationsList}
             currentUserEmail={currentUserEmail}
             onBack={handleBack}
+            isLoading={isLoading}
+            error={error}
           />
         )}
       </main>

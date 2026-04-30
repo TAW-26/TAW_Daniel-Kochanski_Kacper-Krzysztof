@@ -13,7 +13,40 @@ export default function HomePage({
   onPriceMaxChange,
   filteredCars,
   onSelectCar,
+  isLoading,
+  error,
 }) {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Ładowanie samochodów...</p>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="error-state">
+          <p>Wystąpił błąd: {error}</p>
+        </div>
+      );
+    }
+
+    if (filteredCars.length === 0) {
+      return <div className="no-results">Brak samochodów spełniających kryteria.</div>;
+    }
+
+    return (
+      <div className="car-grid">
+        {filteredCars.map((car) => (
+          <CarCard key={car._id || car.id} car={car} onSelect={onSelectCar} />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <>
       <section className="hero">
@@ -72,15 +105,7 @@ export default function HomePage({
           <p>Znajdź najlepszą ofertę dla siebie.</p>
         </div>
 
-        <div className="car-grid">
-          {filteredCars.length > 0 ? (
-            filteredCars.map((car) => (
-              <CarCard key={car.id} car={car} onSelect={onSelectCar} />
-            ))
-          ) : (
-            <div className="no-results">Brak samochodów spełniających kryteria.</div>
-          )}
-        </div>
+        {renderContent()}
       </section>
     </>
   );

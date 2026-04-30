@@ -13,6 +13,7 @@ export default function CarDetailPage({
   onReserve,
   onConfirmBooking,
   onBack,
+  isLoading,
 }) {
   if (!selectedCar) {
     return null;
