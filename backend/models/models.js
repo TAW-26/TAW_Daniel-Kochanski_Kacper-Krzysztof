@@ -6,8 +6,8 @@ export const UserModel = mongoose.model(
   new mongoose.Schema({
     email: String,
     password: String,
-    role: { type: String, default: "user" }
-  })
+    role: { type: String, default: "user" },
+  }),
 );
 
 // CAR
@@ -22,8 +22,8 @@ export const CarModel = mongoose.model(
     seats: Number,
     fuel: String,
     description: String,
-    image: String
-  })
+    image: String,
+  }),
 );
 
 // RESERVATION
@@ -33,6 +33,6 @@ export const ReservationModel = mongoose.model(
     userId: String,
     carId: String,
     startDate: Date,
-    endDate: Date
-  })
+    endDate: Date,
+  }),
 );

@@ -5,13 +5,17 @@ import { UserModel } from "../models/models.js";
 const JWT_SECRET = "super_secret_key_123";
 
 export class AuthService {
-
   async register(email, password) {
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await UserModel.create({
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     return user;
@@ -27,7 +31,7 @@ export class AuthService {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     return { user, token };

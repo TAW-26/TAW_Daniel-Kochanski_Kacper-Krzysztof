@@ -15,7 +15,7 @@ export class CarService {
 
   async filterCars({ brand }) {
     const filter = {};
-    if (brand && brand !== 'Wszystkie') filter.brand = brand;
+    if (brand && brand !== "Wszystkie") filter.brand = brand;
     return await CarModel.find(filter);
   }
 
@@ -25,10 +25,6 @@ export class CarService {
   }
 
   async editCar(id, carData) {
-    return await CarModel.findByIdAndUpdate(
-      id,
-      carData,
-      { new: true }
-    );
+    return await CarModel.findByIdAndUpdate(id, carData, { new: true });
   }
 }

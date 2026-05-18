@@ -19,14 +19,25 @@ export default function CarDetailPage({
     return null;
   }
 
-  if (view === 'details') {
+  if (view === "details") {
     return (
       <section className="car-detail">
         <div className="detail-card">
           <div className="detail-hero">
-            <img className="detail-image" src={selectedCar.image} alt={`${selectedCar.brand} ${selectedCar.name}`} />
+            <img
+              className="detail-image"
+              src={selectedCar.image}
+              alt={`${selectedCar.brand} ${selectedCar.name}`}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src =
+                  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320' viewBox='0 0 500 320'><rect width='100%' height='100%' fill='%23e9ecef'/><text x='50%' y='50%' font-family='Arial, sans-serif' font-size='24' fill='%236c757d' dominant-baseline='middle' text-anchor='middle'>Brak zdjęcia</text></svg>";
+              }}
+            />
             <div className="detail-meta">
-              <h2>{selectedCar.brand} {selectedCar.name}</h2>
+              <h2>
+                {selectedCar.brand} {selectedCar.name}
+              </h2>
               <div className="detail-price">{selectedCar.price} zł / dzień</div>
               <p className="detail-description">{selectedCar.description}</p>
             </div>
@@ -47,11 +58,19 @@ export default function CarDetailPage({
             <div className="date-grid">
               <label>
                 Od
-                <input type="date" value={dateFrom} onChange={(event) => onDateFromChange(event.target.value)} />
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(event) => onDateFromChange(event.target.value)}
+                />
               </label>
               <label>
                 Do
-                <input type="date" value={dateTo} onChange={(event) => onDateToChange(event.target.value)} />
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(event) => onDateToChange(event.target.value)}
+                />
               </label>
             </div>
             <button className="secondary-button" onClick={onCheckAvailability}>
@@ -65,7 +84,9 @@ export default function CarDetailPage({
               </div>
             )}
 
-            {availability && <div className="availability-message">{availability}</div>}
+            {availability && (
+              <div className="availability-message">{availability}</div>
+            )}
 
             <div className="detail-actions">
               <button className="secondary-button" onClick={onBack}>
@@ -85,9 +106,20 @@ export default function CarDetailPage({
     <section className="car-detail">
       <div className="detail-card">
         <div className="detail-hero">
-          <img className="detail-image" src={selectedCar.image} alt={`${selectedCar.brand} ${selectedCar.name}`} />
+          <img
+            className="detail-image"
+            src={selectedCar.image}
+            alt={`${selectedCar.brand} ${selectedCar.name}`}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320' viewBox='0 0 500 320'><rect width='100%' height='100%' fill='%23e9ecef'/><text x='50%' y='50%' font-family='Arial, sans-serif' font-size='24' fill='%236c757d' dominant-baseline='middle' text-anchor='middle'>Brak zdjęcia</text></svg>";
+            }}
+          />
           <div className="detail-meta">
-            <h2>{selectedCar.brand} {selectedCar.name}</h2>
+            <h2>
+              {selectedCar.brand} {selectedCar.name}
+            </h2>
             <div className="detail-price">{selectedCar.price} zł / dzień</div>
           </div>
         </div>
@@ -97,11 +129,19 @@ export default function CarDetailPage({
           <div className="date-grid">
             <label>
               Od
-              <input type="date" value={dateFrom} onChange={(event) => onDateFromChange(event.target.value)} />
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(event) => onDateFromChange(event.target.value)}
+              />
             </label>
             <label>
               Do
-              <input type="date" value={dateTo} onChange={(event) => onDateToChange(event.target.value)} />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(event) => onDateToChange(event.target.value)}
+              />
             </label>
           </div>
 
@@ -112,7 +152,9 @@ export default function CarDetailPage({
             </div>
           )}
 
-          {reservationMessage && <div className="availability-message">{reservationMessage}</div>}
+          {reservationMessage && (
+            <div className="availability-message">{reservationMessage}</div>
+          )}
 
           <div className="detail-actions">
             <button className="secondary-button" onClick={onBack}>

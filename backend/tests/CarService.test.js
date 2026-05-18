@@ -1,8 +1,8 @@
-import { jest } from '@jest/globals';
-import { CarService } from '../services/CarService.js';
-import { CarModel } from '../models/models.js';
+import { jest } from "@jest/globals";
+import { CarService } from "../services/CarService.js";
+import { CarModel } from "../models/models.js";
 
-describe('CarService', () => {
+describe("CarService", () => {
   let carService;
 
   beforeEach(() => {
@@ -10,12 +10,14 @@ describe('CarService', () => {
     jest.clearAllMocks();
   });
 
-  describe('addCar', () => {
-    it('should create and return a new car', async () => {
-      const mockCarData = { brand: 'BMW', model: 'X5', price: 200 };
-      const mockCreatedCar = { _id: '1', ...mockCarData };
+  describe("addCar", () => {
+    it("should create and return a new car", async () => {
+      const mockCarData = { brand: "BMW", model: "X5", price: 200 };
+      const mockCreatedCar = { _id: "1", ...mockCarData };
 
-      const createSpy = jest.spyOn(CarModel, 'create').mockResolvedValue(mockCreatedCar);
+      const createSpy = jest
+        .spyOn(CarModel, "create")
+        .mockResolvedValue(mockCreatedCar);
 
       const result = await carService.addCar(mockCarData);
 
@@ -24,10 +26,10 @@ describe('CarService', () => {
     });
   });
 
-  describe('getAllCars', () => {
-    it('should return all cars', async () => {
-      const mockCars = [{ brand: 'BMW' }, { brand: 'Audi' }];
-      const findSpy = jest.spyOn(CarModel, 'find').mockResolvedValue(mockCars);
+  describe("getAllCars", () => {
+    it("should return all cars", async () => {
+      const mockCars = [{ brand: "BMW" }, { brand: "Audi" }];
+      const findSpy = jest.spyOn(CarModel, "find").mockResolvedValue(mockCars);
 
       const result = await carService.getAllCars();
 
@@ -35,6 +37,4 @@ describe('CarService', () => {
       expect(result).toEqual(mockCars);
     });
   });
-
-
 });

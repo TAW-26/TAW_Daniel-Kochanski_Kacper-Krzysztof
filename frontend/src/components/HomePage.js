@@ -1,4 +1,4 @@
-import CarCard from './CarCard';
+import CarCard from "./CarCard";
 
 export default function HomePage({
   brand,
@@ -35,7 +35,11 @@ export default function HomePage({
     }
 
     if (filteredCars.length === 0) {
-      return <div className="no-results">Brak samochodów spełniających kryteria.</div>;
+      return (
+        <div className="no-results">
+          Brak samochodów spełniających kryteria.
+        </div>
+      );
     }
 
     return (
@@ -51,13 +55,18 @@ export default function HomePage({
     <>
       <section className="hero">
         <h1>Wybierz samochód na każdą podróż</h1>
-        <p>Proste filtrowanie, przejrzyste karty aut i szybki start rezerwacji.</p>
+        <p>
+          Proste filtrowanie, przejrzyste karty aut i szybki start rezerwacji.
+        </p>
       </section>
 
       <section className="filters" id="filters">
         <div className="filter-column">
           <label>Marka</label>
-          <select value={brand} onChange={(event) => onBrandChange(event.target.value)}>
+          <select
+            value={brand}
+            onChange={(event) => onBrandChange(event.target.value)}
+          >
             {brandOptions.map((item) => (
               <option key={item} value={item}>
                 {item}
@@ -68,7 +77,10 @@ export default function HomePage({
 
         <div className="filter-column">
           <label>Typ</label>
-          <select value={type} onChange={(event) => onTypeChange(event.target.value)}>
+          <select
+            value={type}
+            onChange={(event) => onTypeChange(event.target.value)}
+          >
             {typeOptions.map((item) => (
               <option key={item} value={item}>
                 {item}
