@@ -4,7 +4,8 @@
   "description": "System wypożyczania samochodów",
   "main": "appContext.js",
   "scripts": {
-    "start": "node appContext.js"
+    "start": "node appContext.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -24,5 +25,9 @@
     "url": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof/issues"
   },
   "homepage": "https://github.com/TAW-26/TAW_Daniel-Kochanski_Kacper-Krzysztof#readme",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2"
+  }
 }
