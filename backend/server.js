@@ -1,8 +1,8 @@
 import express from "express";
+import "express-async-errors";
 import cors from "cors";
 import { connectDB } from "./db.js";
 import { authMiddleware } from "./middleware/auth.js";
-
 
 connectDB();
 
@@ -26,7 +26,6 @@ const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
 
 // GET wszystkie auta
 app.get("/cars", async (req, res) => {
@@ -74,7 +73,6 @@ app.delete("/cars/:id", async (req, res) => {
   res.status(204).send();
 });
 
-
 app.get("/users", async (req, res) => {
   const users = await userService.getAllUsers();
   res.json(users);
@@ -87,7 +85,6 @@ app.delete("/users/:id", async (req, res) => {
 
   res.status(204).send();
 });
-
 
 app.post("/auth/register", async (req, res) => {
   const { email, password } = req.body;
@@ -112,14 +109,15 @@ app.post("/auth/login", async (req, res) => {
   res.json(result);
 });
 
-
 app.get("/reservations", authMiddleware, async (req, res) => {
   const reservations = await reservationService.getAllReservations();
   res.json(reservations);
 });
 
 app.get("/reservations/user/:userId", authMiddleware, async (req, res) => {
-  const reservations = await reservationService.getUserReservations(req.params.userId);
+  const reservations = await reservationService.getUserReservations(
+    req.params.userId,
+  );
   res.json(reservations);
 });
 
@@ -133,7 +131,7 @@ app.get("/reservations/check", async (req, res) => {
   const available = await reservationService.checkAvailability(
     carId,
     new Date(startDate),
-    new Date(endDate)
+    new Date(endDate),
   );
 
   res.json({ available });
@@ -148,7 +146,7 @@ app.post("/reservations", authMiddleware, async (req, res) => {
     userId,
     carId,
     new Date(startDate),
-    new Date(endDate)
+    new Date(endDate),
   );
 
   if (!reservation) {

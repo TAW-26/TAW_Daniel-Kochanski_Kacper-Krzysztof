@@ -1,9 +1,11 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 .app-container {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: #1f2937;
   background: #f8fafc;
   min-height: 100vh;

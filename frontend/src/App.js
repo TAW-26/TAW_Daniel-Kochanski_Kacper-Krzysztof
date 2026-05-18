@@ -1,60 +1,59 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import './App.css';
-import Navbar from './components/Navbar';
-import HomePage from './components/HomePage';
-import AuthPage from './components/AuthPage';
-import CarDetailPage from './components/CarDetailPage';
-import AdminPanel from './components/AdminPanel';
-import ProfilePage from './components/ProfilePage';
-import {
-  brandOptions,
-  typeOptions,
-} from './data';
-import { api } from './api';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import "./App.css";
+import Navbar from "./components/Navbar";
+import HomePage from "./components/HomePage";
+import AuthPage from "./components/AuthPage";
+import CarDetailPage from "./components/CarDetailPage";
+import AdminPanel from "./components/AdminPanel";
+import ProfilePage from "./components/ProfilePage";
+import { api } from "./api";
+
+const brandOptions = ["Wszystkie", "Toyota", "BMW", "Ford"];
+const typeOptions = ["Wszystkie", "Sedan", "SUV", "Hatchback"];
 
 function App() {
-  const [brand, setBrand] = useState('Wszystkie');
-  const [type, setType] = useState('Wszystkie');
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
+  const [brand, setBrand] = useState("Wszystkie");
+  const [type, setType] = useState("Wszystkie");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
   const [selectedCar, setSelectedCar] = useState(null);
-  const [view, setView] = useState('home');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
-  const [availability, setAvailability] = useState('');
-  const [reservationMessage, setReservationMessage] = useState('');
+  const [view, setView] = useState("home");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [reservationMessage, setReservationMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userReservationsList, setUserReservationsList] = useState([]);
   const [adminCarsList, setAdminCarsList] = useState([]);
   const [adminReservationsList, setAdminReservationsList] = useState([]);
   const [adminUsersList, setAdminUsersList] = useState([]);
-  const [adminSection, setAdminSection] = useState('cars');
+  const [adminSection, setAdminSection] = useState("cars");
   const [adminCarForm, setAdminCarForm] = useState({
     id: null,
-    brand: '',
-    type: '',
-    name: '',
-    price: '',
-    seats: '',
-    fuel: '',
-    description: '',
+    brand: "",
+    type: "",
+    name: "",
+    price: "",
+    seats: "",
+    fuel: "",
+    description: "",
   });
   const [adminEditMode, setAdminEditMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUserEmail, setCurrentUserEmail] = useState('');
-  const [currentUserId, setCurrentUserId] = useState('');
-  const [currentUserRole, setCurrentUserRole] = useState('user');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
-  const [authMessage, setAuthMessage] = useState('');
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
+  const [currentUserRole, setCurrentUserRole] = useState("user");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [authMessage, setAuthMessage] = useState("");
 
   const filteredCars = useMemo(() => {
     return adminCarsList.filter((car) => {
-      const matchBrand = brand === 'Wszystkie' || car.brand === brand;
-      const matchType = type === 'Wszystkie' || car.type === type;
+      const matchBrand = brand === "Wszystkie" || car.brand === brand;
+      const matchType = type === "Wszystkie" || car.type === type;
       const min = priceMin ? Number(priceMin) : 0;
       const max = priceMax ? Number(priceMax) : Number.MAX_SAFE_INTEGER;
       const matchPrice = car.price >= min && car.price <= max;
@@ -73,44 +72,45 @@ function App() {
   const totalPrice = selectedCar ? selectedCar.price * daysCount : 0;
 
   const parseHash = () => {
-    const hash = window.location.hash.replace('#', '');
+    const hash = window.location.hash.replace("#", "");
     if (!hash) {
-      return { view: 'home', carId: null };
+      return { view: "home", carId: null };
     }
-    if (hash === 'profile') {
-      return { view: 'profile', carId: null };
+    if (hash === "profile") {
+      return { view: "profile", carId: null };
     }
-    if (hash === 'login') {
-      return { view: 'login', carId: null };
+    if (hash === "login") {
+      return { view: "login", carId: null };
     }
-    if (hash === 'register') {
-      return { view: 'register', carId: null };
+    if (hash === "register") {
+      return { view: "register", carId: null };
     }
-    if (hash === 'admin') {
-      if (!isLoggedIn || currentUserRole !== 'admin') {
-        window.location.hash = '';
-        return { view: 'home', carId: null };
+    if (hash === "admin") {
+      if (!isLoggedIn || currentUserRole !== "admin") {
+        window.location.hash = "";
+        return { view: "home", carId: null };
       }
-      return { view: 'admin', carId: null };
+      return { view: "admin", carId: null };
     }
     let match = hash.match(/^details-([a-zA-Z0-9]+)$/);
     if (match) {
-      return { view: 'details', carId: match[1] };
+      return { view: "details", carId: match[1] };
     }
     match = hash.match(/^booking-([a-zA-Z0-9]+)$/);
     if (match) {
-      return { view: 'booking', carId: match[1] };
+      return { view: "booking", carId: match[1] };
     }
-    return { view: 'home', carId: null };
+    return { view: "home", carId: null };
   };
 
-  const fetchCars = useCallback(async (brandFilter = 'Wszystkie') => {
+  const fetchCars = useCallback(async (brandFilter = "Wszystkie") => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = brandFilter === 'Wszystkie' 
-        ? await api.getCars() 
-        : await api.getCarsByBrand(brandFilter);
+      const data =
+        brandFilter === "Wszystkie"
+          ? await api.getCars()
+          : await api.getCarsByBrand(brandFilter);
       setAdminCarsList(data);
     } catch (err) {
       setError(err.message);
@@ -121,20 +121,20 @@ function App() {
 
   const setCarFromHash = useCallback(() => {
     const parsed = parseHash();
-    if (parsed.view === 'profile') {
+    if (parsed.view === "profile") {
       if (!isLoggedIn) {
-        window.location.hash = 'login';
+        window.location.hash = "login";
         return;
       }
       setSelectedCar(null);
-      setView('profile');
-      setAvailability('');
-      
+      setView("profile");
+      setAvailability("");
+
       // Fetch user reservations
       const fetchUserReservations = async () => {
         setIsLoading(true);
         try {
-          const data = await api.getUserReservations(currentUserId); 
+          const data = await api.getUserReservations(currentUserId);
           setUserReservationsList(data);
         } catch (err) {
           setError(err.message);
@@ -145,38 +145,61 @@ function App() {
       fetchUserReservations();
       return;
     }
-    if (parsed.view === 'login' || parsed.view === 'register') {
+    if (parsed.view === "login" || parsed.view === "register") {
       setSelectedCar(null);
       setView(parsed.view);
-      setAuthMessage('');
-      setLoginEmail('');
-      setLoginPassword('');
-      setRegisterEmail('');
-      setRegisterPassword('');
+      setAuthMessage("");
+      setLoginEmail("");
+      setLoginPassword("");
+      setRegisterEmail("");
+      setRegisterPassword("");
       return;
     }
-    if (parsed.view === 'admin') {
+    if (parsed.view === "admin") {
       setSelectedCar(null);
-      setView('admin');
-      setAdminSection('cars');
+      setView("admin");
+      setAdminSection("cars");
       return;
     }
-    if (parsed.view === 'details' || parsed.view === 'booking') {
-      const car = adminCarsList.find((item) => (item.id === parsed.carId || item._id === parsed.carId));
+    if (parsed.view === "details" || parsed.view === "booking") {
+      if (parsed.view === "booking" && !isLoggedIn) {
+        window.location.hash = "login";
+        return;
+      }
+      const car = adminCarsList.find((item) => item._id === parsed.carId);
       if (car) {
         setSelectedCar(car);
         setView(parsed.view);
-        setDateFrom('');
-        setDateTo('');
-        setAvailability('');
+        setDateFrom("");
+        setDateTo("");
+        setAvailability("");
         return;
       }
     }
 
     setSelectedCar(null);
-    setView('home');
-    setAvailability('');
+    setView("home");
+    setAvailability("");
   }, [isLoggedIn, adminCarsList, currentUserId]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        if (payload.exp * 1000 > Date.now()) {
+          setIsLoggedIn(true);
+          setCurrentUserEmail(payload.email);
+          setCurrentUserId(payload.id);
+          setCurrentUserRole(payload.role || "user");
+        } else {
+          localStorage.removeItem("token");
+        }
+      } catch (err) {
+        localStorage.removeItem("token");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     fetchCars(brand);
@@ -185,59 +208,59 @@ function App() {
   useEffect(() => {
     setCarFromHash();
     const handleHashChange = () => setCarFromHash();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, [setCarFromHash]);
 
   const handleSelectCar = (car) => {
-    window.location.hash = `details-${car._id || car.id}`;
+    window.location.hash = `details-${car._id}`;
   };
 
   const handleBack = () => {
-    if (view === 'booking') {
-      window.location.hash = `details-${selectedCar?._id || selectedCar?.id || ''}`;
+    if (view === "booking") {
+      window.location.hash = `details-${selectedCar?._id || ""}`;
       return;
     }
-    if (view === 'profile' || view === 'login' || view === 'register') {
-      window.location.hash = '';
+    if (view === "profile" || view === "login" || view === "register") {
+      window.location.hash = "";
       return;
     }
-    window.location.hash = '';
+    window.location.hash = "";
   };
 
   const navigate = (page) => {
-    if (page === 'home') {
-      window.location.hash = '';
+    if (page === "home") {
+      window.location.hash = "";
       return;
     }
     window.location.hash = page;
   };
 
   const handleFieldChange = (field, value) => {
-    if (field === 'loginEmail') setLoginEmail(value);
-    if (field === 'loginPassword') setLoginPassword(value);
-    if (field === 'registerEmail') setRegisterEmail(value);
-    if (field === 'registerPassword') setRegisterPassword(value);
+    if (field === "loginEmail") setLoginEmail(value);
+    if (field === "loginPassword") setLoginPassword(value);
+    if (field === "registerEmail") setRegisterEmail(value);
+    if (field === "registerPassword") setRegisterPassword(value);
   };
 
   const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
-      setAuthMessage('Wprowadź email i hasło.');
+      setAuthMessage("Wprowadź email i hasło.");
       return;
     }
     setIsLoading(true);
-    setAuthMessage('');
+    setAuthMessage("");
     try {
       const data = await api.login(loginEmail, loginPassword);
       setIsLoggedIn(true);
       setCurrentUserEmail(loginEmail);
-      setCurrentUserId(data.user._id || data.user.id);
-      setCurrentUserRole(data.user.role || 'user');
-      setAuthMessage('Zalogowano pomyślnie!');
-      setLoginEmail('');
-      setLoginPassword('');
+      setCurrentUserId(data.user._id);
+      setCurrentUserRole(data.user.role || "user");
+      setAuthMessage("Zalogowano pomyślnie!");
+      setLoginEmail("");
+      setLoginPassword("");
       setTimeout(() => {
-        window.location.hash = '';
+        window.location.hash = "";
       }, 1000);
     } catch (err) {
       setAuthMessage(err.message);
@@ -248,18 +271,18 @@ function App() {
 
   const handleRegister = async () => {
     if (!registerEmail || !registerPassword) {
-      setAuthMessage('Wprowadź email i hasło.');
+      setAuthMessage("Wprowadź email i hasło.");
       return;
     }
     setIsLoading(true);
-    setAuthMessage('');
+    setAuthMessage("");
     try {
       await api.register(registerEmail, registerPassword);
-      setAuthMessage('Konto utworzone. Możesz się teraz zalogować.');
-      setRegisterEmail('');
-      setRegisterPassword('');
+      setAuthMessage("Konto utworzone. Możesz się teraz zalogować.");
+      setRegisterEmail("");
+      setRegisterPassword("");
       setTimeout(() => {
-        window.location.hash = 'login';
+        window.location.hash = "login";
       }, 1500);
     } catch (err) {
       setAuthMessage(err.message);
@@ -270,11 +293,11 @@ function App() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setCurrentUserEmail('');
-    setCurrentUserId('');
-    setCurrentUserRole('user');
-    localStorage.removeItem('token');
-    window.location.hash = '';
+    setCurrentUserEmail("");
+    setCurrentUserId("");
+    setCurrentUserRole("user");
+    localStorage.removeItem("token");
+    window.location.hash = "";
   };
 
   const handleAdminSection = async (section) => {
@@ -282,10 +305,10 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      if (section === 'users') {
+      if (section === "users") {
         const data = await api.getUsers();
         setAdminUsersList(data);
-      } else if (section === 'reservations') {
+      } else if (section === "reservations") {
         const data = await api.getReservations();
         setAdminReservationsList(data);
       }
@@ -304,7 +327,7 @@ function App() {
     setIsLoading(true);
     try {
       await api.deleteUser(id);
-      setAdminUsersList(adminUsersList.filter((u) => (u._id || u.id) !== id));
+      setAdminUsersList(adminUsersList.filter((u) => u._id !== id));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -315,7 +338,7 @@ function App() {
   const handleEditCar = (car) => {
     setAdminEditMode(true);
     setAdminCarForm({
-      id: car._id || car.id,
+      id: car._id,
       brand: car.brand,
       type: car.type,
       name: car.name,
@@ -330,11 +353,11 @@ function App() {
     setIsLoading(true);
     try {
       await api.deleteCar(id);
-      setAdminCarsList(adminCarsList.filter((car) => (car._id || car.id) !== id));
-      if (selectedCar?._id === id || selectedCar?.id === id) {
+      setAdminCarsList(adminCarsList.filter((car) => car._id !== id));
+      if (selectedCar?._id === id) {
         setSelectedCar(null);
-        setView('home');
-        window.location.hash = '';
+        setView("home");
+        window.location.hash = "";
       }
     } catch (err) {
       setError(err.message);
@@ -352,7 +375,9 @@ function App() {
       seats: Number(adminCarForm.seats) || 4,
       fuel: adminCarForm.fuel,
       description: adminCarForm.description,
-      image: adminCarForm.image || `https://via.placeholder.com/500x320?text=${adminCarForm.brand}+${adminCarForm.name}`,
+      image:
+        adminCarForm.image ||
+        `https://via.placeholder.com/500x320?text=${adminCarForm.brand}+${adminCarForm.name}`,
     };
 
     setIsLoading(true);
@@ -374,35 +399,41 @@ function App() {
   const handleCancelEdit = () => {
     setAdminCarForm({
       id: null,
-      brand: '',
-      type: '',
-      name: '',
-      price: '',
-      seats: '',
-      fuel: '',
-      description: '',
+      brand: "",
+      type: "",
+      name: "",
+      price: "",
+      seats: "",
+      fuel: "",
+      description: "",
     });
     setAdminEditMode(false);
   };
 
   const handleCheckAvailability = async () => {
     if (!dateFrom || !dateTo) {
-      setAvailability('Wprowadź zakres dat, aby sprawdzić dostępność.');
+      setAvailability("Wprowadź zakres dat, aby sprawdzić dostępność.");
       return;
     }
     if (daysCount <= 0) {
-      setAvailability('Wybierz poprawny zakres dat (data zakończenia musi być późniejsza niż data rozpoczęcia).');
+      setAvailability(
+        "Wybierz poprawny zakres dat (data zakończenia musi być późniejsza niż data rozpoczęcia).",
+      );
       return;
     }
-    
+
     setIsLoading(true);
-    setAvailability('');
+    setAvailability("");
     try {
-      const { available } = await api.checkAvailability(selectedCar._id || selectedCar.id, dateFrom, dateTo);
+      const { available } = await api.checkAvailability(
+        selectedCar._id,
+        dateFrom,
+        dateTo,
+      );
       if (available) {
-        setAvailability('Termin dostępny! Możesz przejść do rezerwacji.');
+        setAvailability("Termin dostępny! Możesz przejść do rezerwacji.");
       } else {
-        setAvailability('Termin niedostępny. Wybierz inną datę.');
+        setAvailability("Termin niedostępny. Wybierz inną datę.");
       }
     } catch (err) {
       setAvailability(err.message);
@@ -413,29 +444,39 @@ function App() {
 
   const handleReserve = () => {
     if (!selectedCar) return;
+    if (!isLoggedIn) {
+      window.location.hash = "login";
+      return;
+    }
     if (!dateFrom || !dateTo) {
-      setAvailability('Wprowadź zakres dat, aby przejść do rezerwacji.');
+      setAvailability("Wprowadź zakres dat, aby przejść do rezerwacji.");
       return;
     }
     if (daysCount <= 0) {
-      setAvailability('Wybierz poprawny zakres dat (data zakończenia musi być późniejsza niż data rozpoczęcia).');
+      setAvailability(
+        "Wybierz poprawny zakres dat (data zakończenia musi być późniejsza niż data rozpoczęcia).",
+      );
       return;
     }
-    setAvailability('');
-    setReservationMessage('');
-    window.location.hash = `booking-${selectedCar._id || selectedCar.id}`;
+    setAvailability("");
+    setReservationMessage("");
+    window.location.hash = `booking-${selectedCar._id}`;
   };
 
   const handleConfirmBooking = async () => {
     if (!selectedCar || daysCount <= 0) {
-      setReservationMessage('Wprowadź poprawny zakres dat przed potwierdzeniem rezerwacji.');
+      setReservationMessage(
+        "Wprowadź poprawny zakres dat przed potwierdzeniem rezerwacji.",
+      );
       return;
     }
     setIsLoading(true);
-    setReservationMessage('');
+    setReservationMessage("");
     try {
-      await api.reserveCar(selectedCar._id || selectedCar.id, dateFrom, dateTo);
-      setReservationMessage(`Rezerwacja ${selectedCar.brand} ${selectedCar.name} na ${daysCount} dni została potwierdzona.`);
+      await api.reserveCar(selectedCar._id, dateFrom, dateTo);
+      setReservationMessage(
+        `Rezerwacja ${selectedCar.brand} ${selectedCar.name} na ${daysCount} dni została potwierdzona.`,
+      );
     } catch (err) {
       setReservationMessage(err.message);
     } finally {
@@ -445,10 +486,15 @@ function App() {
 
   return (
     <div className="app-container">
-      <Navbar isLoggedIn={isLoggedIn} onNavigate={navigate} onLogout={handleLogout} />
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        isAdmin={currentUserRole === "admin"}
+        onNavigate={navigate}
+        onLogout={handleLogout}
+      />
 
       <main>
-        {view === 'login' && (
+        {view === "login" && (
           <AuthPage
             view="login"
             loginEmail={loginEmail}
@@ -464,7 +510,7 @@ function App() {
           />
         )}
 
-        {view === 'register' && (
+        {view === "register" && (
           <AuthPage
             view="register"
             loginEmail={loginEmail}
@@ -480,7 +526,7 @@ function App() {
           />
         )}
 
-        {view === 'home' && (
+        {view === "home" && (
           <HomePage
             brand={brand}
             type={type}
@@ -499,7 +545,7 @@ function App() {
           />
         )}
 
-        {(view === 'details' || view === 'booking') && selectedCar && (
+        {(view === "details" || view === "booking") && selectedCar && (
           <CarDetailPage
             view={view}
             selectedCar={selectedCar}
@@ -519,7 +565,7 @@ function App() {
           />
         )}
 
-        {view === 'admin' && (
+        {view === "admin" && (
           <AdminPanel
             adminSection={adminSection}
             adminCarsList={adminCarsList}
@@ -539,7 +585,7 @@ function App() {
           />
         )}
 
-        {view === 'profile' && (
+        {view === "profile" && (
           <ProfilePage
             userReservationsList={userReservationsList}
             currentUserEmail={currentUserEmail}

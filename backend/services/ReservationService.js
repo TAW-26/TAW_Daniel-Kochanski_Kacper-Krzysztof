@@ -7,9 +7,9 @@ export class ReservationService {
       $or: [
         {
           startDate: { $lte: endDate },
-          endDate: { $gte: startDate }
-        }
-      ]
+          endDate: { $gte: startDate },
+        },
+      ],
     });
 
     return !conflict;
@@ -23,7 +23,7 @@ export class ReservationService {
       userId,
       carId,
       startDate,
-      endDate
+      endDate,
     });
   }
 

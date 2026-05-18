@@ -12,7 +12,7 @@ console.log("Car:", car);
 const isAvailable = reservationService.checkAvailability(
   car.id,
   new Date("2026-01-01"),
-  new Date("2026-01-05")
+  new Date("2026-01-05"),
 );
 console.log("Available:", isAvailable);
 
@@ -21,7 +21,7 @@ const reservation = reservationService.reserveCar(
   user.id,
   car.id,
   new Date("2026-01-01"),
-  new Date("2026-01-05")
+  new Date("2026-01-05"),
 );
 console.log("Reservation:", reservation);
 
@@ -30,6 +30,6 @@ const second = reservationService.reserveCar(
   user.id,
   car.id,
   new Date("2026-01-02"),
-  new Date("2026-01-04")
+  new Date("2026-01-04"),
 );
 console.log("Second reservation (should fail):", second);

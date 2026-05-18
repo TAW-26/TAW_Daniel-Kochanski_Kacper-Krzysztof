@@ -35,7 +35,7 @@ export default function AdminPanel({
 
     return (
       <div className="admin-content">
-        {adminSection === 'cars' && (
+        {adminSection === "cars" && (
           <>
             <div className="admin-section-header">
               <h2>Lista samochodów</h2>
@@ -51,15 +51,23 @@ export default function AdminPanel({
               {adminCarsList.length > 0 ? (
                 adminCarsList.map((car) => (
                   <div key={car._id || car.id} className="table-row">
-                    <div>{car.brand} {car.name}</div>
+                    <div>
+                      {car.brand} {car.name}
+                    </div>
                     <div>{car.price} zł</div>
                     <div>
-                      <button className="secondary-button" onClick={() => onEditCar(car)}>
+                      <button
+                        className="secondary-button"
+                        onClick={() => onEditCar(car)}
+                      >
                         Edytuj
                       </button>
                     </div>
                     <div>
-                      <button className="secondary-button" onClick={() => onDeleteCar(car._id || car.id)}>
+                      <button
+                        className="secondary-button"
+                        onClick={() => onDeleteCar(car._id || car.id)}
+                      >
                         Usuń
                       </button>
                     </div>
@@ -70,35 +78,72 @@ export default function AdminPanel({
               )}
             </div>
             <div className="admin-form">
-              <h3>{adminEditMode ? 'Edytuj samochód' : 'Dodaj samochód'}</h3>
+              <h3>{adminEditMode ? "Edytuj samochód" : "Dodaj samochód"}</h3>
               <div className="form-grid">
                 <label>
                   Marka
-                  <input value={adminCarForm.brand} onChange={(event) => onFormChange('brand', event.target.value)} />
+                  <input
+                    value={adminCarForm.brand}
+                    onChange={(event) =>
+                      onFormChange("brand", event.target.value)
+                    }
+                  />
                 </label>
                 <label>
                   Model
-                  <input value={adminCarForm.name} onChange={(event) => onFormChange('name', event.target.value)} />
+                  <input
+                    value={adminCarForm.name}
+                    onChange={(event) =>
+                      onFormChange("name", event.target.value)
+                    }
+                  />
                 </label>
                 <label>
                   Typ
-                  <input value={adminCarForm.type} onChange={(event) => onFormChange('type', event.target.value)} />
+                  <input
+                    value={adminCarForm.type}
+                    onChange={(event) =>
+                      onFormChange("type", event.target.value)
+                    }
+                  />
                 </label>
                 <label>
                   Cena
-                  <input type="number" value={adminCarForm.price} onChange={(event) => onFormChange('price', event.target.value)} />
+                  <input
+                    type="number"
+                    value={adminCarForm.price}
+                    onChange={(event) =>
+                      onFormChange("price", event.target.value)
+                    }
+                  />
                 </label>
                 <label>
                   Miejsca
-                  <input type="number" value={adminCarForm.seats} onChange={(event) => onFormChange('seats', event.target.value)} />
+                  <input
+                    type="number"
+                    value={adminCarForm.seats}
+                    onChange={(event) =>
+                      onFormChange("seats", event.target.value)
+                    }
+                  />
                 </label>
                 <label>
                   Paliwo
-                  <input value={adminCarForm.fuel} onChange={(event) => onFormChange('fuel', event.target.value)} />
+                  <input
+                    value={adminCarForm.fuel}
+                    onChange={(event) =>
+                      onFormChange("fuel", event.target.value)
+                    }
+                  />
                 </label>
                 <label className="full-width">
                   Opis
-                  <input value={adminCarForm.description} onChange={(event) => onFormChange('description', event.target.value)} />
+                  <input
+                    value={adminCarForm.description}
+                    onChange={(event) =>
+                      onFormChange("description", event.target.value)
+                    }
+                  />
                 </label>
               </div>
               <div className="admin-form-actions">
@@ -115,7 +160,7 @@ export default function AdminPanel({
           </>
         )}
 
-        {adminSection === 'reservations' && (
+        {adminSection === "reservations" && (
           <>
             <div className="admin-section-header">
               <h2>Lista rezerwacji</h2>
@@ -130,11 +175,21 @@ export default function AdminPanel({
               </div>
               {adminReservationsList.length > 0 ? (
                 adminReservationsList.map((reservation) => (
-                  <div key={reservation._id || reservation.id} className="table-row">
-                    <div>{reservation.userEmail || reservation.user || reservation.userId}</div>
+                  <div
+                    key={reservation._id || reservation.id}
+                    className="table-row"
+                  >
+                    <div>
+                      {reservation.userEmail ||
+                        reservation.user ||
+                        reservation.userId}
+                    </div>
                     <div>{reservation.carBrand || reservation.carId}</div>
-                    <div>{new Date(reservation.startDate).toLocaleDateString()} — {new Date(reservation.endDate).toLocaleDateString()}</div>
-                    <div>{reservation.status || 'Potwierdzona'}</div>
+                    <div>
+                      {new Date(reservation.startDate).toLocaleDateString()} —{" "}
+                      {new Date(reservation.endDate).toLocaleDateString()}
+                    </div>
+                    <div>{reservation.status || "Potwierdzona"}</div>
                   </div>
                 ))
               ) : (
@@ -144,7 +199,7 @@ export default function AdminPanel({
           </>
         )}
 
-        {adminSection === 'users' && (
+        {adminSection === "users" && (
           <>
             <div className="admin-section-header">
               <h2>Lista użytkowników</h2>
@@ -160,9 +215,14 @@ export default function AdminPanel({
                 adminUsersList.map((user) => (
                   <div key={user._id || user.id} className="table-row">
                     <div>{user.email}</div>
-                    <div>{user.role || 'Użytkownik'}</div>
+                    <div>{user.role || "Użytkownik"}</div>
                     <div>
-                      <button className="secondary-button" onClick={() => onDeleteUser(user._id || user.id)}>Usuń</button>
+                      <button
+                        className="secondary-button"
+                        onClick={() => onDeleteUser(user._id || user.id)}
+                      >
+                        Usuń
+                      </button>
                     </div>
                   </div>
                 ))
@@ -181,13 +241,22 @@ export default function AdminPanel({
       <div className="admin-container">
         <aside className="admin-menu">
           <h3>MENU ADMINA</h3>
-          <button className={adminSection === 'cars' ? 'active' : ''} onClick={() => onSectionChange('cars')}>
+          <button
+            className={adminSection === "cars" ? "active" : ""}
+            onClick={() => onSectionChange("cars")}
+          >
             Samochody
           </button>
-          <button className={adminSection === 'reservations' ? 'active' : ''} onClick={() => onSectionChange('reservations')}>
+          <button
+            className={adminSection === "reservations" ? "active" : ""}
+            onClick={() => onSectionChange("reservations")}
+          >
             Rezerwacje
           </button>
-          <button className={adminSection === 'users' ? 'active' : ''} onClick={() => onSectionChange('users')}>
+          <button
+            className={adminSection === "users" ? "active" : ""}
+            onClick={() => onSectionChange("users")}
+          >
             Użytkownicy
           </button>
         </aside>
