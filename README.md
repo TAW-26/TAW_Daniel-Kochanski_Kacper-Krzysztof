@@ -194,7 +194,7 @@ Użyj Let's Encrypt lub innego dostawcy SSL certyfikatów.
 ## Znane ograniczenia
 
 1. **Brak walidacji dat** - System nie sprawdza czy data rozpoczęcia jest wcześniejsza niż data zakończenia
-2. **Brak walidacji dostępności** - Rezerwacje mogą się nakładać na ten sam samochód w tym samym terminie
+2. **Brak walidacji dostępności** - Rezerwacje mogą się nakładać na ten sam samochód w tym samym terminiee
 3. **Brak płatności** - System nie obsługuje płatności online
 4. **Brak powiadomień** - Użytkownicy nie otrzymują powiadomień email o rezerwacjach
 5. **Brak systemu ocen** - Brak możliwości oceny samochodów i rezerwacji
