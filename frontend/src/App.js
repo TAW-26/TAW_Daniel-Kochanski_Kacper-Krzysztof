@@ -484,6 +484,16 @@ function App() {
     }
   };
 
+  const handleNavigateToCar = (carId) => {
+    window.location.hash = `details-${carId}`;
+  };
+
+  const handleNavigateToUser = (userId) => {
+    // For now, just navigate to profile
+    // In the future, could navigate to a specific user profile page
+    window.location.hash = "profile";
+  };
+
   return (
     <div className="app-container">
       <Navbar
@@ -580,6 +590,8 @@ function App() {
             onSaveCar={handleSaveCar}
             onCancelEdit={handleCancelEdit}
             onFormChange={handleAdminFormChange}
+            onNavigateToCar={handleNavigateToCar}
+            onNavigateToUser={handleNavigateToUser}
             isLoading={isLoading}
             error={error}
           />
@@ -590,6 +602,8 @@ function App() {
             userReservationsList={userReservationsList}
             currentUserEmail={currentUserEmail}
             onBack={handleBack}
+            onNavigateToCar={handleNavigateToCar}
+            carsList={adminCarsList}
             isLoading={isLoading}
             error={error}
           />

@@ -2,6 +2,8 @@ export default function ProfilePage({
   userReservationsList,
   currentUserEmail,
   onBack,
+  onNavigateToCar,
+  carsList,
   isLoading,
   error,
 }) {
@@ -42,15 +44,22 @@ export default function ProfilePage({
               </div>
             ) : currentUserEmail ? (
               userReservationsList.length > 0 ? (
-                userReservationsList.map((reservation) => (
-                  <div
-                    key={reservation._id || reservation.id}
-                    className="table-row"
-                  >
-                    <div className="col-auto">
-                      {reservation.carBrand || reservation.carId}{" "}
-                      {reservation.carName || ""}
-                    </div>
+                userReservationsList.map((reservation) => {
+                  const car = carsList?.find((c) => c._id === reservation.carId);
+                  const carName = car ? `${car.brand} ${car.name}` : reservation.carId;
+                  return (
+                    <div
+                      key={reservation._id || reservation.id}
+                      className="table-row"
+                    >
+                      <div className="col-auto">
+                        <button
+                          className="link-button"
+                          onClick={() => onNavigateToCar(reservation.carId)}
+                        >
+                          {carName}
+                        </button>
+                      </div>
                     <div className="col-date">
                       {new Date(
                         reservation.startDate || reservation.dateFrom,
@@ -68,7 +77,8 @@ export default function ProfilePage({
                       </span>
                     </div>
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="no-reservations">
                   Brak rezerwacji dla tego konta.
