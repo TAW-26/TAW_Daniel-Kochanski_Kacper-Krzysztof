@@ -12,9 +12,12 @@ export default function AdminPanel({
   onSaveCar,
   onCancelEdit,
   onFormChange,
+  onNavigateToCar,
+  onNavigateToUser,
   isLoading,
   error,
 }) {
+  const carsList = adminCarsList;
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -174,24 +177,40 @@ export default function AdminPanel({
                 <div>Status</div>
               </div>
               {adminReservationsList.length > 0 ? (
-                adminReservationsList.map((reservation) => (
-                  <div
-                    key={reservation._id || reservation.id}
-                    className="table-row"
-                  >
-                    <div>
-                      {reservation.userEmail ||
-                        reservation.user ||
-                        reservation.userId}
-                    </div>
-                    <div>{reservation.carBrand || reservation.carId}</div>
+                adminReservationsList.map((reservation) => {
+                  const car = carsList?.find((c) => c._id === reservation.carId);
+                  const carName = car ? `${car.brand} ${car.name}` : reservation.carId;
+                  return (
+                    <div
+                      key={reservation._id || reservation.id}
+                      className="table-row"
+                    >
+                      <div>
+                        <button
+                          className="link-button"
+                          onClick={() => onNavigateToUser && onNavigateToUser(reservation.userId)}
+                        >
+                          {reservation.userEmail ||
+                            reservation.user ||
+                            reservation.userId}
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          className="link-button"
+                          onClick={() => onNavigateToCar && onNavigateToCar(reservation.carId)}
+                        >
+                          {carName}
+                        </button>
+                      </div>
                     <div>
                       {new Date(reservation.startDate).toLocaleDateString()} —{" "}
                       {new Date(reservation.endDate).toLocaleDateString()}
                     </div>
                     <div>{reservation.status || "Potwierdzona"}</div>
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="no-results">Brak rezerwacji w bazie.</div>
               )}

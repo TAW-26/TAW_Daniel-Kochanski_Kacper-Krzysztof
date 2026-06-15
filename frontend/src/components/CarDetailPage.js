@@ -90,7 +90,7 @@ export default function CarDetailPage({
 
             <div className="detail-actions">
               <button className="secondary-button" onClick={onBack}>
-                Powrót do listy
+                ← Powrót do listy
               </button>
               <button className="primary-button" onClick={onReserve}>
                 Rezerwuj
@@ -158,7 +158,7 @@ export default function CarDetailPage({
 
           <div className="detail-actions">
             <button className="secondary-button" onClick={onBack}>
-              Powrót do szczegółów
+              ← Powrót do szczegółów
             </button>
             <button className="primary-button" onClick={onConfirmBooking}>
               Potwierdź rezerwację
