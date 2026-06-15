@@ -3,6 +3,7 @@ import {
   httpRequestDurationMs,
   activeConnections,
 } from "../metrics/index.js";
+import { logRequest } from "../utils/logger.js";
 
 export function metricsMiddleware(req, res, next) {
   const startMs = Date.now();
@@ -19,6 +20,7 @@ export function metricsMiddleware(req, res, next) {
 
     httpRequestsTotal.inc(labels);
     httpRequestDurationMs.observe(labels, durationMs);
+    logRequest(req, res, durationMs);
     activeConnections.dec();
   });
 

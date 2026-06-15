@@ -5,6 +5,7 @@ import { connectDB } from "./db.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { register, apiErrorsTotal } from "./metrics/index.js";
 import { metricsMiddleware } from "./middleware/metricsMiddleware.js";
+import { logError } from "./utils/logger.js";
 
 connectDB();
 
@@ -55,6 +56,7 @@ app.get("/cars/:id", async (req, res) => {
 
   if (!car) {
     apiErrorsTotal.inc({ type: "not_found" });
+    logError(new Error("Car not found"), req);
     return res.status(404).json({ error: "Car not found" });
   }
 
@@ -73,6 +75,7 @@ app.put("/cars/:id", async (req, res) => {
 
   if (!car) {
     apiErrorsTotal.inc({ type: "not_found" });
+    logError(new Error("Car not found (PUT)"), req);
     return res.status(404).json({ error: "Car not found" });
   }
 
@@ -85,6 +88,7 @@ app.delete("/cars/:id", async (req, res) => {
 
   if (!success) {
     apiErrorsTotal.inc({ type: "not_found" });
+    logError(new Error("Car not found (DELETE)"), req);
     return res.status(404).json({ error: "Car not found" });
   }
 
@@ -101,6 +105,7 @@ app.delete("/users/:id", async (req, res) => {
 
   if (!success) {
     apiErrorsTotal.inc({ type: "not_found" });
+    logError(new Error("User not found"), req);
     return res.status(404).json({ error: "User not found" });
   }
 
@@ -112,6 +117,7 @@ app.post("/auth/register", async (req, res) => {
 
   if (!email || !password) {
     apiErrorsTotal.inc({ type: "bad_request" });
+    logError(new Error("Missing data (register)"), req);
     return res.status(400).json({ error: "Missing data" });
   }
 
@@ -125,6 +131,7 @@ app.post("/auth/login", async (req, res) => {
   const result = await authService.login(email, password);
 
   if (!result) {
+    logError(new Error("Invalid credentials"), req);
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
@@ -148,6 +155,7 @@ app.get("/reservations/check", async (req, res) => {
 
   if (!carId || !startDate || !endDate) {
     apiErrorsTotal.inc({ type: "bad_request" });
+    logError(new Error("Missing parameters (reservations/check)"), req);
     return res.status(400).json({ error: "Missing parameters" });
   }
 
@@ -173,13 +181,21 @@ app.post("/reservations", authMiddleware, async (req, res) => {
   );
 
   if (!reservation) {
+    logError(new Error("Car not available (conflict)"), req);
     return res.status(409).json({ error: "Car not available" });
   }
 
   res.status(201).json(reservation);
 });
-
+// 404 handler – log not‑found requests
+app.use((req, res, next) => {
+  const err = new Error(`Not Found: ${req.originalUrl}`);
+  err.status = 404;
+  logError(err, req);
+  res.status(404).json({ error: "Not found" });
+});
 app.use((err, req, res, next) => {
+  logError(err, req);
   console.error(err);
   res.status(500).json({ error: "Internal server error" });
 });
