@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s # jak często pobierać metryki (domyślnie)
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "car-rental-backend"
+    static_configs:
+      - targets: ["localhost:5000"] # adres i port aplikacji backendowej
+    metrics_path: "/metrics"
+    scrape_interval: 5s # krótszy interwał na potrzeby dewelopmentu

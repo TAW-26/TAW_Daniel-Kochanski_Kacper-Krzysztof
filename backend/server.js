@@ -3,6 +3,8 @@ import "express-async-errors";
 import cors from "cors";
 import { connectDB } from "./db.js";
 import { authMiddleware } from "./middleware/auth.js";
+import { register, apiErrorsTotal } from "./metrics/index.js";
+import { metricsMiddleware } from "./middleware/metricsMiddleware.js";
 
 connectDB();
 
@@ -20,6 +22,13 @@ const userService = new UserService();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(metricsMiddleware);
+
+// GET /metrics dla Prometheusa
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", register.contentType);
+  res.end(await register.metrics());
+});
 
 const PORT = 5000;
 
@@ -44,7 +53,10 @@ app.get("/cars/filter", async (req, res) => {
 app.get("/cars/:id", async (req, res) => {
   const car = await carService.getCar(req.params.id);
 
-  if (!car) return res.status(404).json({ error: "Car not found" });
+  if (!car) {
+    apiErrorsTotal.inc({ type: "not_found" });
+    return res.status(404).json({ error: "Car not found" });
+  }
 
   res.json(car);
 });
@@ -59,7 +71,10 @@ app.post("/cars", async (req, res) => {
 app.put("/cars/:id", async (req, res) => {
   const car = await carService.editCar(req.params.id, req.body);
 
-  if (!car) return res.status(404).json({ error: "Car not found" });
+  if (!car) {
+    apiErrorsTotal.inc({ type: "not_found" });
+    return res.status(404).json({ error: "Car not found" });
+  }
 
   res.json(car);
 });
@@ -68,7 +83,10 @@ app.put("/cars/:id", async (req, res) => {
 app.delete("/cars/:id", async (req, res) => {
   const success = await carService.deleteCar(req.params.id);
 
-  if (!success) return res.status(404).json({ error: "Car not found" });
+  if (!success) {
+    apiErrorsTotal.inc({ type: "not_found" });
+    return res.status(404).json({ error: "Car not found" });
+  }
 
   res.status(204).send();
 });
@@ -81,7 +99,10 @@ app.get("/users", async (req, res) => {
 app.delete("/users/:id", async (req, res) => {
   const success = await userService.deleteUser(req.params.id);
 
-  if (!success) return res.status(404).json({ error: "User not found" });
+  if (!success) {
+    apiErrorsTotal.inc({ type: "not_found" });
+    return res.status(404).json({ error: "User not found" });
+  }
 
   res.status(204).send();
 });
@@ -90,6 +111,7 @@ app.post("/auth/register", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
+    apiErrorsTotal.inc({ type: "bad_request" });
     return res.status(400).json({ error: "Missing data" });
   }
 
@@ -125,6 +147,7 @@ app.get("/reservations/check", async (req, res) => {
   const { carId, startDate, endDate } = req.query;
 
   if (!carId || !startDate || !endDate) {
+    apiErrorsTotal.inc({ type: "bad_request" });
     return res.status(400).json({ error: "Missing parameters" });
   }
 
