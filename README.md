@@ -195,14 +195,11 @@ Użyj Let's Encrypt lub innego dostawcy SSL certyfikatów.
 
 1. **Brak walidacji dat** - System nie sprawdza czy data rozpoczęcia jest wcześniejsza niż data zakończenia
 2. **Brak walidacji dostępności** - Rezerwacje mogą się nakładać na ten sam samochód w tym samym terminiee
-3. **Brak płatności** - System nie obsługuje płatności online
-4. **Brak powiadomień** - Użytkownicy nie otrzymują powiadomień email o rezerwacjach
-5. **Brak systemu ocen** - Brak możliwości oceny samochodów i rezerwacji
-6. **Brak obsługi anulacji** - Rezerwacje nie mogą być anulowane przez użytkowników
-7. **Brak historii** - Brak pełnej historii zmian w systemie
-8. **Brak testów** - Projekt nie posiada automatycznych testów
-9. **Brak dokumentacji API** - Dokumentacja API jest podstawowa
-10. **Brak obsługi wielojęzycznej** - Aplikacja jest dostępna tylko w języku polskim
+3. **Brak powiadomień** - Użytkownicy nie otrzymują powiadomień o rezerwacjach
+4. **Brak systemu ocen** - Brak możliwości oceny samochodów i rezerwacji
+5. **Brak obsługi anulacji** - Rezerwacje nie mogą być anulowane przez użytkowników
+6. **Brak historii** - Brak pełnej historii zmian w systemie
+7. **Brak testów** - Projekt nie posiada automatycznych testów
 
 ---
 
@@ -219,25 +216,6 @@ docs/
 ├── Diagram ERD.png - Diagram bazy danych
 └── UML.png         - Diagram UML
 ```
-
----
-
-## Screenshoty
-
-Główna Strona:
-![alt text](image.png)
-Rejestracja/Login:
-![alt text](image-1.png)
-Szczegóły/Rezerwacja
-![alt text](image-2.png)
-Profil:
-![alt text](image-3.png)
-Menu Admina - samochody:
-![alt text](image-4.png)
-Menu Admina - rezerwacje:
-![alt text](image-5.png)
-Menu Admina - użytkownicy:
-![alt text](image-6.png)
 ---
 
 ## Autorzy
